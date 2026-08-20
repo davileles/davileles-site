@@ -433,6 +433,22 @@ var TAG_AFILIADO = 'dl04f-20';
 // num padrao aberto e receberia a tag numa URL que nao e da Amazon.
 var RE_HOST_AMAZON = /(^|\.)amazon\.(com|com\.br|com\.mx|co\.uk|de|es|it|fr)$/i;
 
+// Links de afiliado FIXOS que nao aceitam troca de tag: sao encurtados, e a tag
+// mora do outro lado do redirect. Aqui a substituicao e da URL inteira, pela
+// equivalente na conta deste site. Espelha o linksLiteraisPorGrupo do
+// baileys-server, que faz a mesma troca no envio para o grupo.
+var TROCAS_LITERAIS = {
+  // Resgate de cupom da Amazon.
+  'https://amzn.to/4dFRSzy': 'https://link.amazon/B03wEQT0G'
+};
+
+function comTrocaLiteral(url) {
+  if (!url) return url;
+  return Object.prototype.hasOwnProperty.call(TROCAS_LITERAIS, url)
+    ? TROCAS_LITERAIS[url]
+    : url;
+}
+
 function comTagPropria(url) {
   if (!url || !TAG_AFILIADO) return url;
   try {
@@ -447,7 +463,10 @@ function comTagPropria(url) {
 function comTagNaLista(itens, campo) {
   return (itens || []).map(function (item) {
     if (!item || !item[campo]) return item;
-    var novo = comTagPropria(item[campo]);
+    // Ordem importa: a troca literal vem antes, e o link curto que ela devolve
+    // nao casa no host da Amazon — entao escapa intocado da troca de tag,
+    // preservando a tag ja embutida nele.
+    var novo = comTagPropria(comTrocaLiteral(item[campo]));
     if (novo === item[campo]) return item;
     var copia = {};
     for (var k in item) if (Object.prototype.hasOwnProperty.call(item, k)) copia[k] = item[k];
