@@ -248,7 +248,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
     </a>
     <div class="topo-acoes">
       <button class="btn-tema" id="btn-tema" aria-label="Alternar tema" title="Alternar tema">🌙</button>
-      <a class="btn-grupo" id="cta-topo" href="https://grupo.tudosobrepromos.com/groups" target="_blank" rel="noopener">Entrar no grupo</a>
+      <a class="btn-grupo" id="cta-topo" href="https://chat.whatsapp.com/FGylia9gw4pBNRSy53kfG0?s=cl&amp;p=i&amp;ilr=4" target="_blank" rel="noopener">Entrar no grupo</a>
     </div>
   </div>
 </header>
@@ -299,7 +299,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
       Os links são de afiliado: você paga o mesmo preço e o grupo recebe uma comissão da loja.
       Como Associado Amazon, recebemos por compras qualificadas.
       <br/>
-      <a href="https://grupo.tudosobrepromos.com/groups" target="_blank" rel="noopener">Entrar no grupo do WhatsApp</a>
+      <a href="https://chat.whatsapp.com/FGylia9gw4pBNRSy53kfG0?s=cl&amp;p=i&amp;ilr=4" target="_blank" rel="noopener">Entrar no grupo do WhatsApp</a>
     </p>
     <div class="assina">Promos do Davi</div>
   </div>
@@ -325,7 +325,8 @@ var estado = {
   cupons: [],
   busca: '',
   loja: null,
-  grupoUrl: 'https://grupo.tudosobrepromos.com/groups'
+  // Convite direto. Este espelho nao passa pelo distribuidor do TSP.
+  grupoUrl: 'https://chat.whatsapp.com/FGylia9gw4pBNRSy53kfG0?s=cl&p=i&ilr=4'
 };
 
 var $ = function (id) { return document.getElementById(id); };
@@ -423,7 +424,8 @@ function carregar() {
   Promise.allSettled([buscarJson('feed.json'), buscarJson('cupons.json')]).then(function (res) {
     if (res[0].status === 'fulfilled') {
       estado.ofertas = res[0].value.ofertas || [];
-      if (res[0].value.grupoUrl) estado.grupoUrl = res[0].value.grupoUrl;
+      // De proposito nao herdamos o grupoUrl do feed.json: ele aponta para o
+      // distribuidor do TSP e sobrescreveria o convite deste espelho.
     }
     if (res[1].status === 'fulfilled') {
       estado.cupons = (res[1].value.cupons || []).filter(function (c) { return restante(c.validadeAte); });
