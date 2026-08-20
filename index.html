@@ -419,16 +419,54 @@ function buscarJson(nome) {
   return tentar();
 }
 
+// ── TAG DE AFILIADO DESTE SITE ────────────────────────────────────────────
+// O feed e escrito pela operacao do TSP e chega com a tag dela. Este espelho
+// direciona a comissao para outra conta de associado, entao a tag e trocada na
+// leitura — uma vez, logo depois do fetch, para que toda a renderizacao (grade,
+// botao, foto) ja use o link certo sem precisar lembrar disso em cada ponto.
+//
+// So Amazon e so link longo. Encurtado (amzn.to, link.amazon) carrega a tag do
+// outro lado do redirect e sai intacto: reescrever ali nao teria efeito.
+var TAG_AFILIADO = 'dl04f-20';
+
+// Sufixo fechado de proposito: um host como amazon.com.br.terceiro.net casaria
+// num padrao aberto e receberia a tag numa URL que nao e da Amazon.
+var RE_HOST_AMAZON = /(^|\.)amazon\.(com|com\.br|com\.mx|co\.uk|de|es|it|fr)$/i;
+
+function comTagPropria(url) {
+  if (!url || !TAG_AFILIADO) return url;
+  try {
+    var u = new URL(url, location.href);
+    if (!RE_HOST_AMAZON.test(u.hostname)) return url;
+    u.searchParams.set('tag', TAG_AFILIADO);
+    return u.toString();
+  } catch (e) { return url; }
+}
+
+/** Devolve a lista com os links de Amazon reapontados. Campo ausente fica como esta. */
+function comTagNaLista(itens, campo) {
+  return (itens || []).map(function (item) {
+    if (!item || !item[campo]) return item;
+    var novo = comTagPropria(item[campo]);
+    if (novo === item[campo]) return item;
+    var copia = {};
+    for (var k in item) if (Object.prototype.hasOwnProperty.call(item, k)) copia[k] = item[k];
+    copia[campo] = novo;
+    return copia;
+  });
+}
+
 function carregar() {
   esqueletos();
   Promise.allSettled([buscarJson('feed.json'), buscarJson('cupons.json')]).then(function (res) {
     if (res[0].status === 'fulfilled') {
-      estado.ofertas = res[0].value.ofertas || [];
+      estado.ofertas = comTagNaLista(res[0].value.ofertas, 'link');
       // De proposito nao herdamos o grupoUrl do feed.json: ele aponta para o
       // distribuidor do TSP e sobrescreveria o convite deste espelho.
     }
     if (res[1].status === 'fulfilled') {
-      estado.cupons = (res[1].value.cupons || []).filter(function (c) { return restante(c.validadeAte); });
+      estado.cupons = comTagNaLista(
+        (res[1].value.cupons || []).filter(function (c) { return restante(c.validadeAte); }), 'url');
     }
     if (res[0].status === 'rejected' && res[1].status === 'rejected') return falhou();
 
