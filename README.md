@@ -14,11 +14,10 @@ Estático, servido pelo GitHub Pages.
 
 **Este repositório não recebe publicação.** Não existe pasta `dados/` aqui de
 propósito. O `feed-publico.js` do **davileles/baileys-server** continua
-publicando apenas em `davileles/tsp-site`, e esta página lê os JSONs de lá por
+publicando em `davileles/tica-site` (ticapromos.com.br), e esta página lê os JSONs de lá por
 HTTP, em `BASES_DADOS` (topo do `<script>`):
 
-1. `https://www.tudosobrepromos.com/dados/`
-2. `https://gestao.tudosobrepromos.com/dados/` (queda)
+1. `https://ticapromos.com.br/dados/`
 
 O GitHub Pages responde com `Access-Control-Allow-Origin: *`, então a leitura
 entre domínios funciona. Consequência prática: quando o feed publica, os dois
